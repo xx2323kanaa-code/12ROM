@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>12ROM Safe Index</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+body { font-family: monospace; background:#111; color:#0f0; }
+#log { white-space: pre-wrap; font-size:12px; }
+button { font-size:16px; margin:4px; }
+.badge { color:#0ff; font-weight:bold; }
+</style>
+
+<script>
+/* ===== ROM / BUILD ID ===== */
+window.__ROM_ID__ = "12ROM";
+window.__INDEX_NAME__ = "index_0102ROM.html";
+window.__BUILD_TIME__ = new Date().toISOString();
+
+console.log("INDEX LOADED", window.__INDEX_NAME__, window.__BUILD_TIME__);
+</script>
+</head>
+
+<body>
+
+<div class="badge">
+ROM: 12ROM / index_0102ROM.html<br>
+BUILD: <span id="build"></span>
+</div>
+
+<button onclick="safeAnalyze()">Analyze</button>
+<button onclick="copyDebugLog()">Copy Log</button>
+
+<pre id="log"></pre>
+
+<script>
+/* ===== logging ===== */
+window.DEBUG_LOG = [];
+
+function log(msg){
+  const t = new Date().toLocaleTimeString();
+  const line = `[${t}] ${msg}`;
+  DEBUG_LOG.push(line);
+  document.getElementById("log").textContent += line + "\n";
+  console.log(line);
+}
+
+function copyDebugLog(){
+  const header =
+`ROM=${window.__ROM_ID__}
+INDEX=${window.__INDEX_NAME__}
+BUILD=${window.__BUILD_TIME__}
+--------------------------`;
+  navigator.clipboard.writeText(
+    header + "\n" + DEBUG_LOG.join("\n")
+  );
+  log("Log copied (with build info)");
+}
+
+/* ===== analyze safety ===== */
+function safeAnalyze(){
+  if (typeof analyze !== "function") {
+    log("ERROR: analyze() not defined");
+    alert("Analyze.js が読み込まれていません");
+    return;
+  }
+  log("safeAnalyze() → analyze()");
+  analyze();
+}
+
+/* ===== analyze load watchdog ===== */
+window.__ANALYZE_LOADED__ = false;
+
+setTimeout(() => {
+  if (!window.__ANALYZE_LOADED__) {
+    log("ERROR: analyze.js not loaded");
+    alert("analyze.js 読み込み失敗");
+  } else {
+    log("analyze.js loaded OK");
+  }
+}, 800);
+
+/* ===== build 표시 ===== */
+document.getElementById("build").textContent =
+  window.__BUILD_TIME__;
+</script>
+
+<!-- ===== Analyze.js (cache breaker) ===== -->
+<script>
+const s = document.createElement("script");
+s.src = "./analyze.js?ts=" + Date.now();
+document.body.appendChild(s);
+</script>
+
+</body>
+</html>
